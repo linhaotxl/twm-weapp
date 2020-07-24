@@ -18,6 +18,8 @@ export class ContextResource {
     replaceNames: string[] = [];
     extensionMap: Record<string, string> = {};
 
+    watched: boolean = false;
+
     fileContext: FileContext = new FileContext();
 
     set <K extends Exclude<keyof ContextResource, 'set'>>(

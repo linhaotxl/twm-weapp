@@ -1,14 +1,11 @@
 {
   "name": "twm-weapp",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
   "main": "./dist/bin/twm.js",
   "scripts": {
     "init": "npm install && npm run build",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "watch": "babel src --out-dir dist --extensions '.ts' --watch",
-    "build": "babel src --out-dir dist --extensions '.ts'",
-    "tsc": "tsc"
+    "watch": "babel src --out-dir dist --extensions '.ts' --watch"
   },
   "bin": {
     "twm-weapp": "./dist/bin/twm.js"

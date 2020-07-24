@@ -11,6 +11,7 @@ export type TwmOptions = {
     output: string;
     lang: ELang;
     extensions?: IExtension[];
+    watched: boolean;
 };
 
 export default class Twm {
@@ -36,7 +37,8 @@ export default class Twm {
         root,
         output,
         extensions = [],
-        lang
+        lang,
+        watched
     }: TwmOptions ) {
         const options = new ContextResource();
 
@@ -45,6 +47,7 @@ export default class Twm {
         options.set( 'lang', lang );
         options.set( 'miniprogram', absolutePath(DefaultMiniprogram[lang]) );
         options.set( 'extensions', [ ...this.defaultOptions.extensions, ...extensions ] );
+        options.set( 'watched', watched );
 
         const { extensionMap, extensionNames, replaceNames } = options.extensions.reduce<{ extensionNames: string[]; extensionMap: Record<string, string>; replaceNames: string[]; }>(( prev, curr ) => {
             prev.extensionNames.push( curr.extname );
@@ -75,7 +78,9 @@ export default class Twm {
         await this.hooks.changeFileHooks.promise( this.context );
         await this.hooks.distGenHooks.promise( this.context );
 
-        await this.initialFileWatcher();
+        if ( this.context.watched ) {
+            await this.initialFileWatcher();
+        }
 
         info( 'building success.' );
     }
