@@ -1,0 +1,68 @@
+import globby from 'globby';
+import Twm from '../TwmWatcher';
+import { joinPath } from '../utils';
+import { ContextResource } from '../resource';
+import { fileResourceGen } from '../helper';
+import { IMiddleware } from '.';
+ 
+export class GlobbyPathPlugin implements IMiddleware {
+    apply ( twm: Twm ) {
+        twm.hooks.initialHooks.tapPromise( 'GlobbyPath', ( context: ContextResource ) => new Promise( async resolve => {
+            const { root } = context;
+            await this.createFileResourceMap(
+                joinPath( root, '/**' ),
+                context
+            );
+
+            resolve( context );
+        }));
+    }
+
+    /**
+     * 创建文件对象
+     * @param { string | string[] } globbyPath  扫描目录
+     * @param { string }            input       根路径
+     * @param { string }            include     执行路径下需要翻译
+     * @param { string }            output      输入路径
+     * @param { IExtension[] }      extensions  配置扩展列表
+     */
+    async createFileResourceMap (
+        globbyPath: string | string[],
+        context: ContextResource
+    ) {
+        // 获取扫描目录
+        const paths = await this.getGlobbyPaths( globbyPath, context );
+
+        for ( const filePath of paths ) {
+            fileResourceGen(
+                filePath,
+                context
+            );
+        }
+    }
+
+    /**
+     * 获取扫描目录集合
+     */
+    async getGlobbyPaths ( globbyPath: string | string[], context: ContextResource ) {
+        const { output, miniprogram, root } = context;
+        const path = typeof globbyPath === 'string' ? [ globbyPath ] : globbyPath;
+        const gPathSet = new Set([
+            `!${ joinPath( root, 'node_modules' ) }`,
+            `!${ joinPath( root, 'miniprogram_npm' ) }`,
+            `!${ joinPath( miniprogram, 'node_modules' ) }`,
+            `!${ joinPath( miniprogram, 'miniprogram_npm' ) }`
+        ]);
+        const gPath: string[] = [
+            ...path,
+            ...gPathSet,
+            // `!${ output }`,
+        ];
+
+        if ( output !== root ) {
+            gPath.push( `!${ output }` );
+        }
+
+        return await globby( gPath );
+    }
+}
