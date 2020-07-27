@@ -17,15 +17,3 @@ export const error = ( ...args: any[] ) => {
 export const warn = ( ...args: any[] ) => {
     _log( yellow( ...args ) );
 }
-
-export const logTimeStart = ( text: string ) => {
-    const now = Date.now();
-    info( text );
-    return now;
-}
-
-export const logTimeEnd = ( lastNow: number, text: string ) => {
-    const period = Date.now() - lastNow;
-    const periodSecond = (period / 1000).toFixed( 2 );
-    info( `${ text } ${ periodSecond }s` );
-}

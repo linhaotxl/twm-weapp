@@ -1,8 +1,8 @@
 import { watch, FSWatcher, WatchOptions } from 'chokidar';
 import { ContextResource, FileResource, DirectorResource, EDirectorState } from '../resource';
-import { joinPath, info, change, extname, warn, replaceExtname, accessSync } from '../utils';
+import { joinPath, change, extname, warn, replaceExtname, accessSync } from '../utils';
 import fs from 'fs';
-import { fileResourceGen, dirResourceGen } from './FileResourceGen';
+import { processAddFile, processAddDir, processUnlinkDir } from './FileResourceGen';
 
 export class FileWatcher {
     defaultOptions: WatchOptions = {
@@ -14,13 +14,13 @@ export class FileWatcher {
     context: ContextResource;
     ready: boolean = false;
     onUpdate: ( changeFilesMap: Map<FileResource, FileResource> ) => Promise<any>;
-    onUpdateDir: ( changeDirsMap: Map<string, DirectorResource> ) => Promise<any>;
+    onUpdateDir: ( changeDirsMap: Map<DirectorResource, DirectorResource> ) => Promise<any>;
 
     constructor (
         options: WatchOptions,
         context: ContextResource,
         onUpdate: ( changeFilesMap: Map<FileResource, FileResource> ) => Promise<any>,
-        onUpdateDir: ( changeDirsMap: Map<string, DirectorResource> ) => Promise<any>
+        onUpdateDir: ( changeDirsMap: Map<DirectorResource, DirectorResource> ) => Promise<any>
     ) {
         this.context = context;
         this.onUpdate = onUpdate;
@@ -40,7 +40,7 @@ export class FileWatcher {
                 joinPath( miniprogram, 'miniprogram_npm' ),
                 joinPath( root, '/**', '.DS_Store' )
             ])
-        ]
+        ];
 
         this.watcher = watch( root, {
             ...this.defaultOptions,
@@ -61,13 +61,6 @@ export class FileWatcher {
                 }
             }
 
-            // if ( type === 'addDir' ) {
-            //     try {
-            //         accessSync( path );
-            //         return ;
-            //     } catch ( e ) {}
-            // }
-
             change( `${ type } ${ path } ...` );
             switch ( type ) {
                 case 'change':
@@ -83,11 +76,11 @@ export class FileWatcher {
                     await this.handlerAddDir( path );
                     break;
                 case 'unlinkDir':
-                    await this.handlerDeleteDir( path );
+                    await this.handlerUnlinkDir( path );
                     break;
             }
             change( `${ type } end.` );
-        })
+        });
     }
 
     async handlerChangeContent ( changePath: string, stats: fs.Stats ) {
@@ -96,11 +89,12 @@ export class FileWatcher {
     }
 
     async handlerAddFile ( filePath: string ) {
-        fileResourceGen(
+        processAddFile(
             filePath,
             this.context
         )
-        await this.onUpdate( this.getUpdateFile( filePath ) );
+        const changeFiles = this.getUpdateFile( filePath );
+        await this.onUpdate( changeFiles );
     }
 
     async handlerUnlinkFile ( filePath: string ) {
@@ -114,13 +108,19 @@ export class FileWatcher {
         await this.onUpdate( removeFileMap );
     }
 
-    async handlerAddDir ( addDirPath: string ) {
-        const changeDirMap = this.getUpdateDir( addDirPath, EDirectorState.ADD );
+    async handlerAddDir ( dirPath: string ) {
+        processAddDir( dirPath, this.context );
+        const changeDirMap = this.getUpdateDir( dirPath, EDirectorState.ADD );
         await this.onUpdateDir( changeDirMap );
     }
 
-    async handlerDeleteDir ( addDirPath: string ) {
-        const changeDirMap = this.getUpdateDir( addDirPath, EDirectorState.DELETE );
+    async handlerUnlinkDir ( dirPath: string ) {
+        const { fileContext } = this.context;
+        const changeDirMap = this.getUpdateDir( dirPath, EDirectorState.DELETE );
+        for ( const s of changeDirMap.keys() ) {
+            s.state = EDirectorState.DELETE;
+            fileContext.unlinkDirector( s );
+        }
         await this.onUpdateDir( changeDirMap );
     }
 
@@ -134,10 +134,13 @@ export class FileWatcher {
         return changeFilesMap;
     }
 
-    getUpdateDir ( changePath: string, state: EDirectorState ) {
-        return new Map<string, DirectorResource>([
-            [ changePath, dirResourceGen( changePath, state, this.context ) ]
-        ]);
+    getUpdateDir ( changeDirPath: string, state: EDirectorState ) {
+        const { dirSource, dirTarget } = this.context.fileContext.getChangeDirSourceAndTarget( changeDirPath );
+        const changeDirsMap = new Map<DirectorResource, DirectorResource>();
+        if ( dirSource && dirTarget ) {
+            changeDirsMap.set( dirSource, dirTarget );
+        }
+        return changeDirsMap;
     }
 
     checkModifyTranslateTargetFile ( changePath: string ) {

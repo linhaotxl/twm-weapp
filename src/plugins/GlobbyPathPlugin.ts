@@ -1,8 +1,8 @@
 import globby from 'globby';
 import Twm from '../TwmWatcher';
-import { joinPath } from '../utils';
+import { joinPath, dirname } from '../utils';
 import { ContextResource } from '../resource';
-import { fileResourceGen } from '../helper';
+import { processAddFile, processAddDir } from '../helper';
 import { IMiddleware } from '.';
  
 export class GlobbyPathPlugin implements IMiddleware {
@@ -20,11 +20,6 @@ export class GlobbyPathPlugin implements IMiddleware {
 
     /**
      * 创建文件对象
-     * @param { string | string[] } globbyPath  扫描目录
-     * @param { string }            input       根路径
-     * @param { string }            include     执行路径下需要翻译
-     * @param { string }            output      输入路径
-     * @param { IExtension[] }      extensions  配置扩展列表
      */
     async createFileResourceMap (
         globbyPath: string | string[],
@@ -34,10 +29,8 @@ export class GlobbyPathPlugin implements IMiddleware {
         const paths = await this.getGlobbyPaths( globbyPath, context );
 
         for ( const filePath of paths ) {
-            fileResourceGen(
-                filePath,
-                context
-            );
+            processAddDir( dirname( filePath ), context );
+            processAddFile( filePath, context );
         }
     }
 

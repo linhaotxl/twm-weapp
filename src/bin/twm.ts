@@ -3,16 +3,17 @@ import { argv } from 'yargs';
 import Twm from '../TwmWatcher';
 import { ELang } from '../utils';
 
-function main () {
-    const { root = '', output = '', lang = ELang.JS, watch } = argv;
+async function main () {
+    const { root = '', output = '', lang = ELang.JS, watch, config } = argv;
     const lowerLang = (lang as ELang).toLowerCase() as ELang;
 
     new Twm({
         root: root as string,
         output: output as string,
         lang: lowerLang,
-        watched: !!watch
-    }).start();
+        watched: !!watch,
+        config: config as string
+    }).init()
 }
 
 main();

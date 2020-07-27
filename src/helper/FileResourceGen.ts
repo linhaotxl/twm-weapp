@@ -6,7 +6,7 @@ import { FileResource, FileContext, ContextResource, DirectorResource, EDirector
  * 生成文件对象
  * 根据扩展字段里的配置，如果文件需要翻译( 配置 replace 字段 )，则会生成 Source File (.ts) 和 Target File(.js)
  */
-export const fileResourceGen = (
+export const processAddFile = (
     sourcePath: string,
     context: ContextResource
 ) => {
@@ -34,7 +34,7 @@ export const fileResourceGen = (
 
     // 获取 Target File 的生成路径
     const translateFilePathD = extension
-        ? joinPath( output, relativePath( dirname( output ), dirname( translateFilePathA ) ), sourceFile.fileNoExtName + translateFilePathE )
+        ? joinPath( output, relativePath( root, dirname( translateFilePathA ) ), sourceFile.fileNoExtName + translateFilePathE )
         : sourceFile.distAbsolutePath;
 
     // 获取 Target File 的扩展对象
@@ -47,10 +47,10 @@ export const fileResourceGen = (
         extension.replace !== extension.extname
     ) {
         // 处理需要翻译的文件，需要生成 TargetFile
-        processSourceFile( sourceFile, translateFilePathA, translateFilePathD, translateE, fileContext );
+        processAddSourceFile( sourceFile, translateFilePathA, translateFilePathD, translateE, fileContext );
     } else {
         // 处理不需要翻译的文件，Target File 可以共用 Source File
-        processTargetFile( sourceFile, translateFilePathA, extensions, replaceNames, fileContext );
+        processAddTargetFile( sourceFile, translateFilePathA, extensions, replaceNames, fileContext );
     }
 
 }
@@ -71,7 +71,7 @@ const getExtension = (
 /**
  * 处理需要翻译的文件
  */
-const processSourceFile = (
+const processAddSourceFile = (
     sourceFile: FileResource,
     sourceAbsolutePath: string,
     distAbsolutePath: string,
@@ -86,7 +86,7 @@ const processSourceFile = (
 /**
  * 处理不需要翻译的文件
  */
-const processTargetFile = (
+const processAddTargetFile = (
     sourceFile: FileResource,
     translateFilePathA: string,
     extensions: IExtension[],
@@ -118,8 +118,21 @@ const processTargetFile = (
     }
 }
 
-export const dirResourceGen = ( pathA: string, state: EDirectorState, context: ContextResource ) => {
-    const { output } = context;
-    const pathD = joinPath( output, relativePath( dirname( output ), pathA ) );
-    return new DirectorResource( pathA, pathD, state );
+export const processAddDir = ( pathA: string, context: ContextResource ) => {
+    const { output, root, fileContext } = context;
+    if ( fileContext.translateNameDirMap.has( pathA ) ) {
+        return ;
+    }
+
+    const pathD = joinPath( output, relativePath( root, pathA ) );
+    const sourceDir = new DirectorResource( pathA, pathD, EDirectorState.ADD );
+    fileContext.addDirector( sourceDir, sourceDir );
+}
+
+export const processUnlinkDir = ( pathA: string, context: ContextResource ) => {
+    const { fileContext } = context;
+    const { dirSource, dirTarget } = fileContext.getChangeDirSourceAndTarget( pathA );
+    if ( dirSource && dirTarget ) {
+        fileContext.unlinkDirector( dirSource );
+    }
 }

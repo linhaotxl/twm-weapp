@@ -3,9 +3,12 @@ import { DirectorResource } from './DirectorResource';
 
 export class FileContext {
 
-    translateMap: Map<FileResource, FileResource> = new Map();
-    translateNameMap: Map<string, FileResource>   = new Map();
-    translateNameDirMap: Map<string, DirectorResource> = new Map();
+    translateMap     = new Map<FileResource, FileResource>();
+    translateNameMap = new Map<string, FileResource>();
+
+    translateNameDirMap = new Map<string, DirectorResource>();
+    translateDirMap     = new Map<DirectorResource, DirectorResource>();
+
     onlyCopyFiles: FileResource[] = [];
 
     addFile ( sourceFile: FileResource, targetFile: FileResource ) {
@@ -18,8 +21,14 @@ export class FileContext {
         this.translateNameMap.delete( suorceFile.sourceAbsolutePath );
     }
 
-    addDirector ( path: string, dir: DirectorResource ) {
-        this.translateNameDirMap.set( path, dir );
+    addDirector ( sourceDir: DirectorResource, targetDir: DirectorResource ) {
+        this.translateDirMap.set( sourceDir, targetDir );
+        this.translateNameDirMap.set( sourceDir.pathA, sourceDir );
+    }
+
+    unlinkDirector ( sourceDir: DirectorResource ) {
+        this.translateDirMap.delete( sourceDir );
+        this.translateNameDirMap.delete( sourceDir.pathA );
     }
 
     addOnlyCopyFile ( file: FileResource ) {
@@ -41,6 +50,14 @@ export class FileContext {
             ? this.translateMap.get( fileSource )
             : null;
         return { fileSource, fileTarget };
+    }
+
+    getChangeDirSourceAndTarget ( changeDirPath: string ) {
+        const dirSource = this.translateNameDirMap.get( changeDirPath );
+        const dirTarget = dirSource
+            ? this.translateDirMap.get( dirSource )
+            : null;
+        return { dirSource, dirTarget };
     }
 
 }

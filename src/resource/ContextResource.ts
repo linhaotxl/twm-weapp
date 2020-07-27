@@ -20,6 +20,8 @@ export class ContextResource {
 
     watched: boolean = false;
 
+    config: string = '';
+
     fileContext: FileContext = new FileContext();
 
     set <K extends Exclude<keyof ContextResource, 'set'>>(

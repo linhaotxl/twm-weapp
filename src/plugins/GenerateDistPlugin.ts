@@ -48,7 +48,6 @@ export class GenerateDistPlugin implements IMiddleware {
             this.traversalTranslateFile( translateMap, writeFiles, copyFiles );
         }
 
-        // console.log(  )
         addDirs.size && await this.addDir( addDirs );
         writeFiles.size && await this.writeFiles( writeFiles );
         copyFiles.size && await this.copyFiles( copyFiles );
@@ -130,7 +129,9 @@ export class GenerateDistPlugin implements IMiddleware {
      */
     async writeFiles ( files: Set<FileResource> ) {
         for ( const file of files ) {
-            file.generated && await writeFile( file.distAbsolutePath, file.sourceCode );
+            if ( file.generated ) {
+                await writeFile( file.distAbsolutePath, file.sourceCode )
+            }
         }
     }
 

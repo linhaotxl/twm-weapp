@@ -1,24 +1,27 @@
 import { AsyncSeriesWaterfallHook, AsyncSeriesHook } from 'tapable';
+import to from 'await-to-js';
+import clear from 'clear';
 
 import { DefaultPlugins } from './plugins';
 import { ContextResource, DefaultMiniprogram, FileResource, DirectorResource } from './resource';
 import { FileWatcher } from './helper';
 import { JS, TS, JSON, WXSS, WXML, LESS, IExtension } from './translate';
-import { absolutePath, ELang, info } from './utils';
+import { absolutePath, ELang, info, joinPath, accessSync, error } from './utils';
 
 export type TwmOptions = {
     root: string;
     output: string;
     lang: ELang;
-    extensions?: IExtension[];
     watched: boolean;
+    config: string;
+    plugins?: Function[];
+    translates?: IExtension[];
 };
 
 export default class Twm {
 
-    defaultOptions = {
-        extensions: [ JS, TS, JSON, WXML, WXSS, LESS ],
-    };
+    defaultExtensions = [ JS, TS, JSON, WXML, WXSS, LESS ];
+    defaultPlugins = DefaultPlugins;
     hooks = {
         initialHooks: new AsyncSeriesHook([ 'context' ]),
         changeFileHooks: new AsyncSeriesWaterfallHook([ 'context', 'changeFile' ]),
@@ -26,27 +29,36 @@ export default class Twm {
         removeFileHooks: new AsyncSeriesHook([ 'context' ])
     };
     fileWatcher: FileWatcher = null;
+    options: TwmOptions = null;
     context: ContextResource = null;
 
     constructor ( options: TwmOptions ) {
-        this.context = this.initialOptions( options );
-        this.applySinglePlugins( DefaultPlugins );
+        this.options = options;
     }
 
-    initialOptions ({
-        root,
-        output,
-        extensions = [],
-        lang,
-        watched
-    }: TwmOptions ) {
+    async init () {
+        const { root, output, lang, watched, config } = this.options;
         const options = new ContextResource();
+        let configObject: Partial<TwmOptions> = {};
+
+        try {
+            const configPath = !!config ? absolutePath( config ) : joinPath( options.root, 'twm.config.js' );
+            accessSync( configPath );
+            const [ err, { default: innerConfigObject } ] = await to( import( configPath ) );
+            if ( err ) {
+                error( err );
+            } else {
+                configObject = innerConfigObject;
+            }
+        } catch ( e ) {}
+
+        const { translates = [], plugins = [] } = configObject;
 
         options.set( 'root', absolutePath( root ) );
         options.set( 'output', absolutePath( output ) );
         options.set( 'lang', lang );
         options.set( 'miniprogram', absolutePath(DefaultMiniprogram[lang]) );
-        options.set( 'extensions', [ ...this.defaultOptions.extensions, ...extensions ] );
+        options.set( 'extensions', [ ...this.defaultExtensions, ...translates ] );
         options.set( 'watched', watched );
 
         const { extensionMap, extensionNames, replaceNames } = options.extensions.reduce<{ extensionNames: string[]; extensionMap: Record<string, string>; replaceNames: string[]; }>(( prev, curr ) => {
@@ -62,7 +74,11 @@ export default class Twm {
         options.set( 'extensionMap', extensionMap );
         options.set( 'replaceNames', replaceNames );
 
-        return options;
+        this.context = options;
+
+        this.applySinglePlugins([ ...this.defaultPlugins, ...plugins ]);
+
+        await this.start();
     }
 
     applySinglePlugins ( defaultPlugins: any[] ) {
@@ -73,7 +89,9 @@ export default class Twm {
     }
 
     async start () {
-        info( 'building...' );
+        clear();
+        const now = Date.now();
+
         await this.hooks.initialHooks.promise( this.context );
         await this.hooks.changeFileHooks.promise( this.context );
         await this.hooks.distGenHooks.promise( this.context );
@@ -82,7 +100,7 @@ export default class Twm {
             await this.initialFileWatcher();
         }
 
-        info( 'building success.' );
+        info( `twm build success with ${ Date.now() - now } ms` );
     }
 
     initialFileWatcher () {
@@ -99,7 +117,7 @@ export default class Twm {
         await this.hooks.distGenHooks.promise( this.context, changeFilesMap );
     }
 
-    updateDirs = async ( changeDirsMap: Map<string, DirectorResource> ) => {
+    updateDirs = async ( changeDirsMap: Map<DirectorResource, DirectorResource> ) => {
         await this.hooks.distGenHooks.promise( this.context, null, changeDirsMap );
     }
 }
