@@ -60,8 +60,21 @@ export default class Twm {
         options.set( 'miniprogram', absolutePath( projectConfigJson.miniprogramRoot || options.root ) );
 
         options.set( 'output', absolutePath( output ) );
-        options.set( 'extensions', [ ...this.defaultExtensions, ...translates ] );
         options.set( 'watched', watched );
+
+        const extensions = [ ...this.defaultExtensions ];
+        const translatesLength = translates.length;
+        for ( let i = 0; i < translatesLength; ++i ) {
+            const t = translates[i];
+            const index = extensions.findIndex( _t => _t.extname === t.extname );
+
+            if ( index === -1 ) {
+                extensions.push( t );
+            } else {
+                extensions[index].translate.push( ...t.translate );
+            }
+        }
+        options.set( 'extensions', extensions );
 
         const { extensionMap, extensionNames, replaceNames } = options.extensions.reduce<{ extensionNames: string[]; extensionMap: Record<string, string>; replaceNames: string[]; }>(( prev, curr ) => {
             prev.extensionNames.push( curr.extname );
@@ -83,7 +96,7 @@ export default class Twm {
         await this.start();
     }
 
-    applySinglePlugins ( defaultPlugins: any[] ) {
+    private applySinglePlugins ( defaultPlugins: any[] ) {
         defaultPlugins.forEach( PluginCtor => {
             const plugin = new PluginCtor();
             plugin.apply( this );
@@ -106,7 +119,7 @@ export default class Twm {
         info( `twm build success with ${ Date.now() - now } ms` );
     }
 
-    initialFileWatcher () {
+    private initialFileWatcher () {
         this.fileWatcher = new FileWatcher(
             {},
             this.context,
@@ -115,12 +128,12 @@ export default class Twm {
         );
     }
 
-    updateFiles = async ( changeFilesMap: Map<FileResource, FileResource> ) => {
+    private updateFiles = async ( changeFilesMap: Map<FileResource, FileResource> ) => {
         await this.hooks.changeFileHooks.promise( this.context, changeFilesMap );
         await this.hooks.distGenHooks.promise( this.context, changeFilesMap );
     }
 
-    updateDirs = async ( changeDirsMap: Map<DirectorResource, DirectorResource> ) => {
+    private updateDirs = async ( changeDirsMap: Map<DirectorResource, DirectorResource> ) => {
         await this.hooks.distGenHooks.promise( this.context, null, changeDirsMap );
     }
 }
