@@ -1,12 +1,12 @@
 {
   "name": "twm-weapp",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "",
   "main": "./dist/bin/twm.js",
   "scripts": {
     "init": "npm install && npm run build",
     "watch": "babel src --out-dir dist --extensions '.ts' --watch",
-    "test": "node ./dist/bin/twm.js --root ./test --output ./dist2 --watch",
+    "test": "node ./dist/bin/twm.js --root ./test --output ./dist2 --watch --config ./twm/twm.config.js",
     "tsc": "tsc"
   },
   "bin": {
@@ -33,10 +33,12 @@
     "@types/chalk": "^2.2.0",
     "@types/clear": "^0.1.0",
     "@types/fs-extra": "^9.0.1",
+    "@types/less": "^3.0.1",
     "@types/node": "^14.0.4",
     "@types/tapable": "^1.0.5",
     "@types/yargs": "^15.0.5",
     "core-js": "^3.6.5",
+    "less": "^3.12.2",
     "typescript": "^3.9.2"
   },
   "dependencies": {

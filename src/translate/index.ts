@@ -44,10 +44,3 @@ export const WXSS: TwmExtension = {
     extname: '.wxss',
     translate: [],
 };
-
-export const LESS: TwmExtension = {
-    extname: '.less',
-    replace: '.wxss',
-    sourceGen: true,
-    translate: [  ],
-};

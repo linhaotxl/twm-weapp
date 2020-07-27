@@ -5,7 +5,7 @@ import clear from 'clear';
 import { DefaultPlugins } from './plugins';
 import { ContextResource, FileResource, DirectorResource } from './resource';
 import { FileWatcher } from './helper';
-import { JS, TS, JSON, WXSS, WXML, LESS, DTS, TwmExtension } from './translate';
+import { JS, TS, JSON, WXSS, WXML, DTS, TwmExtension } from './translate';
 import { absolutePath, info, joinPath, accessSync, error, readJSONSync } from './utils';
 
 export type TwmOptions = {
@@ -19,7 +19,7 @@ export type TwmOptions = {
 
 export default class Twm {
 
-    defaultExtensions = [ JS, TS, DTS, JSON, WXML, WXSS, LESS ];
+    defaultExtensions = [ JS, TS, DTS, JSON, WXML, WXSS ];
     defaultPlugins = DefaultPlugins;
     hooks = {
         initialHooks: new AsyncSeriesHook([ 'context' ]),
@@ -49,8 +49,9 @@ export default class Twm {
             } else {
                 configObject = innerConfigObject;
             }
-        } catch ( e ) {}
-
+        } catch ( e ) {
+            console.log(e)
+        }
         const { translates = [], plugins = [] } = configObject;
 
         options.set( 'root', absolutePath( root ) );
