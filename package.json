@@ -1,6 +1,6 @@
 {
   "name": "twm-weapp",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "",
   "main": "./dist/bin/twm.js",
   "scripts": {
@@ -16,7 +16,11 @@
     "type": "git",
     "url": "https://github.com/linhaotxl/twm-weapp"
   },
-  "keywords": ["wechat", "complier"],
+  "keywords": [
+    "wechat",
+    "complier"
+  ],
+  "types": "./dist/types/index.d.ts",
   "author": "linhao",
   "license": "ISC",
   "devDependencies": {
