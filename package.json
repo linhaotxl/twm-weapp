@@ -11,7 +11,11 @@
   "bin": {
     "twm-weapp": "./dist/bin/twm.js"
   },
-  "keywords": [],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/linhaotxl/twm-weapp"
+  },
+  "keywords": ["wechat", "complier"],
   "author": "linhao",
   "license": "ISC",
   "devDependencies": {
