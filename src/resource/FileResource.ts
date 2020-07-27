@@ -13,7 +13,6 @@ export class FileResource {
     filename: string = '';
     sourceAbsolutePath: string = '';
     distAbsolutePath: string = '';
-    ast: any = null;
     sourceCode: string = '';
     extname: string = '';
     generated: boolean = true;

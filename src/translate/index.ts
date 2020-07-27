@@ -1,5 +1,4 @@
 import { ContextResource, FileResource } from '../resource';
-import { TranslateJsMainCall } from './TranslateJsMainCall';
 import { TranslateLessToCss } from './TranslateLessToCss';
 import { TranslateTsToJs } from './TranslateTsToJs';
 import { TranslatePackageJson } from './TranslatePackageJson';
@@ -7,6 +6,7 @@ import { TranslatePackageJson } from './TranslatePackageJson';
 export type TranslateFn = ( context: ContextResource, source: FileResource, target: FileResource ) => void;
 
 export interface IExtension {
+    test?: RegExp;
     extname: string;
     replace?: string;
     sourceGen?: boolean;
@@ -14,10 +14,16 @@ export interface IExtension {
 }
 
 export const TS: IExtension = {
+    test: /([^\.d]\.ts)$/,
     extname: '.ts',
     replace: '.js',
     translate: [ TranslateTsToJs ],
     sourceGen: true
+};
+
+export const DTS: IExtension = {
+    extname: '.d.ts',
+    translate: []
 };
 
 export const JS: IExtension = {

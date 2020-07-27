@@ -1,8 +1,9 @@
 import { watch, FSWatcher, WatchOptions } from 'chokidar';
 import { ContextResource, FileResource, DirectorResource, EDirectorState } from '../resource';
-import { joinPath, change, extname, warn, replaceExtname, accessSync } from '../utils';
+import { joinPath, change, extname, warn, replaceExtname, accessSync, info } from '../utils';
 import fs from 'fs';
-import { processAddFile, processAddDir, processUnlinkDir } from './FileResourceGen';
+import { processAddFile, processAddDir } from './FileResourceGen';
+import clear from 'clear';
 
 export class FileWatcher {
     defaultOptions: WatchOptions = {
@@ -54,6 +55,10 @@ export class FileWatcher {
                 return ;
             }
 
+            clear();
+            info( `twm build start...` );
+            const now = Date.now();
+
             if ( type === 'change' ) {
                 const modifyPath = this.checkModifyTranslateTargetFile( path );
                 if ( modifyPath ) {
@@ -61,7 +66,6 @@ export class FileWatcher {
                 }
             }
 
-            change( `${ type } ${ path } ...` );
             switch ( type ) {
                 case 'change':
                     await this.handlerChangeContent( path, status );
@@ -79,7 +83,7 @@ export class FileWatcher {
                     await this.handlerUnlinkDir( path );
                     break;
             }
-            change( `${ type } end.` );
+            info( `twm build success with ${ Date.now() - now } ms` );
         });
     }
 

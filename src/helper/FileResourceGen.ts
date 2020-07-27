@@ -22,10 +22,20 @@ export const processAddFile = (
         extension
     });
 
+    let translateFilePathE = sourceFile.extname;
     // 获取 Target File 的扩展名，根据 Source File 的扩展名从配置里获取，如果没有配置使用原来的扩展名
-    const translateFilePathE = extensionMap[sourceFile.extname]
-        ? extensionMap[sourceFile.extname]
-        : sourceFile.extname;
+    if ( extensionMap[sourceFile.extname] ) {
+        if (
+            extension &&
+            (extension.test && extension.test.test( sourceFile.sourceAbsolutePath ) ||
+            !extension.test)
+        ) {
+            translateFilePathE = extensionMap[sourceFile.extname];
+        }
+    }
+    // const translateFilePathE = extensionMap[sourceFile.extname]
+    //     ? extensionMap[sourceFile.extname]
+    //     : sourceFile.extname;
 
     // 获取 Target File 的路径
     const translateFilePathA = extension
