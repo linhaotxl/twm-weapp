@@ -1,4 +1,4 @@
-import { outputFile, copy, CopyOptions, readFileSync as fsReadFileSync, readFile as fsReadFile, readJson as fsReadJson, ReadOptions, unlink as fsUnlink, remove, WriteFileOptions, accessSync as fsAccessSync, mkdirs } from 'fs-extra';
+import { outputFile, copy, CopyOptions, readFileSync as fsReadFileSync, readFile as fsReadFile, readJson as fsReadJson, readJSONSync as fsReadJSONSync, ReadOptions, unlink as fsUnlink, remove, WriteFileOptions, accessSync as fsAccessSync, mkdirs } from 'fs-extra';
 import { PathLike } from 'fs';
 import { extname } from 'path';
 
@@ -18,6 +18,11 @@ export const readFileSync = (
     p: PathLike | number,
     options?: { encoding?: BufferEncoding; flag?: string; }
 ) => fsReadFileSync( p, options );
+
+export const readJSONSync = (
+    p: string,
+    options?: ReadOptions
+) => fsReadJSONSync( p, options );
 
 export const readFile = (
     p: string,

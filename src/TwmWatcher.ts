@@ -3,15 +3,14 @@ import to from 'await-to-js';
 import clear from 'clear';
 
 import { DefaultPlugins } from './plugins';
-import { ContextResource, DefaultMiniprogram, FileResource, DirectorResource } from './resource';
+import { ContextResource, FileResource, DirectorResource } from './resource';
 import { FileWatcher } from './helper';
 import { JS, TS, JSON, WXSS, WXML, LESS, IExtension } from './translate';
-import { absolutePath, ELang, info, joinPath, accessSync, error } from './utils';
+import { absolutePath, info, joinPath, accessSync, error, readJSONSync } from './utils';
 
 export type TwmOptions = {
     root: string;
     output: string;
-    lang: ELang;
     watched: boolean;
     config: string;
     plugins?: Function[];
@@ -37,7 +36,7 @@ export default class Twm {
     }
 
     async init () {
-        const { root, output, lang, watched, config } = this.options;
+        const { root, output, watched, config } = this.options;
         const options = new ContextResource();
         let configObject: Partial<TwmOptions> = {};
 
@@ -55,9 +54,11 @@ export default class Twm {
         const { translates = [], plugins = [] } = configObject;
 
         options.set( 'root', absolutePath( root ) );
+
+        const projectConfigJson = readJSONSync( joinPath( options.root, 'project.config.json' ) );
+        options.set( 'miniprogram', absolutePath( projectConfigJson.miniprogramRoot || options.root ) );
+
         options.set( 'output', absolutePath( output ) );
-        options.set( 'lang', lang );
-        options.set( 'miniprogram', absolutePath(DefaultMiniprogram[lang]) );
         options.set( 'extensions', [ ...this.defaultExtensions, ...translates ] );
         options.set( 'watched', watched );
 

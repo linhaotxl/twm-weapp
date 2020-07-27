@@ -1,17 +1,10 @@
 import { IExtension } from '../translate';
-import { ELang } from '../utils';
 import { FileContext } from './';
-
-export const DefaultMiniprogram: Record<string, string> = {
-    [ ELang.JS ]: '',  
-    [ ELang.TS ]: 'miniprogram',
-};
 
 export class ContextResource {
     root: string = '';
     output: string = '';
     miniprogram: string = '';
-    lang: ELang = ELang.JS;
 
     extensions: IExtension[] = [];
     extensionNames: string[] = [];
