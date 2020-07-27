@@ -5,7 +5,7 @@ import clear from 'clear';
 import { DefaultPlugins } from './plugins';
 import { ContextResource, FileResource, DirectorResource } from './resource';
 import { FileWatcher } from './helper';
-import { JS, TS, JSON, WXSS, WXML, LESS, DTS, IExtension } from './translate';
+import { JS, TS, JSON, WXSS, WXML, LESS, DTS, TwmExtension } from './translate';
 import { absolutePath, info, joinPath, accessSync, error, readJSONSync } from './utils';
 
 export type TwmOptions = {
@@ -14,7 +14,7 @@ export type TwmOptions = {
     watched: boolean;
     config: string;
     plugins?: Function[];
-    translates?: IExtension[];
+    translates?: TwmExtension[];
 };
 
 export default class Twm {
@@ -64,7 +64,7 @@ export default class Twm {
 
         const { extensionMap, extensionNames, replaceNames } = options.extensions.reduce<{ extensionNames: string[]; extensionMap: Record<string, string>; replaceNames: string[]; }>(( prev, curr ) => {
             prev.extensionNames.push( curr.extname );
-            prev.replaceNames.push( curr.replace );
+            prev.replaceNames.push( curr.replace! );
             if ( curr.replace ) {
                 prev.extensionMap[ curr.extname ] = curr.replace
             }

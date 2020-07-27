@@ -1,11 +1,9 @@
 import { ContextResource, FileResource } from '../resource';
-import { TranslateLessToCss } from './TranslateLessToCss';
 import { TranslateTsToJs } from './TranslateTsToJs';
-import { TranslatePackageJson } from './TranslatePackageJson';
 
 export type TranslateFn = ( context: ContextResource, source: FileResource, target: FileResource ) => void;
 
-export interface IExtension {
+export interface TwmExtension {
     test?: RegExp;
     extname: string;
     replace?: string;
@@ -13,7 +11,7 @@ export interface IExtension {
     translate: TranslateFn[];
 }
 
-export const TS: IExtension = {
+export const TS: TwmExtension = {
     test: /([^\.d]\.ts)$/,
     extname: '.ts',
     replace: '.js',
@@ -21,35 +19,35 @@ export const TS: IExtension = {
     sourceGen: true
 };
 
-export const DTS: IExtension = {
+export const DTS: TwmExtension = {
     extname: '.d.ts',
     translate: []
 };
 
-export const JS: IExtension = {
+export const JS: TwmExtension = {
     extname: '.js',
-    translate: [  ],
+    translate: [],
     // sourceGen: true
 };
 
-export const JSON: IExtension = {
+export const JSON: TwmExtension = {
     extname: '.json',
-    translate: [ TranslatePackageJson ],
+    translate: [],
 };
 
-export const WXML: IExtension = {
+export const WXML: TwmExtension = {
     extname: '.wxml',
     translate: [],
 };
 
-export const WXSS: IExtension = {
+export const WXSS: TwmExtension = {
     extname: '.wxss',
     translate: [],
 };
 
-export const LESS: IExtension = {
+export const LESS: TwmExtension = {
     extname: '.less',
     replace: '.wxss',
     sourceGen: true,
-    translate: [ TranslateLessToCss ],
+    translate: [  ],
 };

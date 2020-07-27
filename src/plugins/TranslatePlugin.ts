@@ -1,14 +1,14 @@
 import Twm from '../TwmWatcher';
 import { ContextResource, FileResource } from '../resource';
-import { IExtension } from '../translate';
-import { IMiddleware } from '.';
+import { TwmExtension } from '../translate';
+import { TwmMiddleware } from '.';
 
 /**
  * @param { string } path 解析的路径 文件 和 目录两种情况
  * @param { string } ext  解析文件的扩展名 .js
  * @param { function } translate  解析的具体步骤，怎么解析
  */
-export class TranslatePlugin implements IMiddleware {
+export class TranslatePlugin implements TwmMiddleware {
 
     apply ( twm: Twm ) {
         twm.hooks.changeFileHooks.tapPromise( 'TranslateFile', (
@@ -27,7 +27,7 @@ export class TranslatePlugin implements IMiddleware {
      */
     async resolveTranslateFile ( context: ContextResource, changeFilesMap: Map<FileResource, FileResource> ) {
         const { fileContext: { translateMap }, extensions } = context;
-        const extensionMap = new Map<IExtension, Map<FileResource, FileResource>>();
+        const extensionMap = new Map<TwmExtension, Map<FileResource, FileResource>>();
         const extensionNames: string[] = extensions.map( e => e.extname );
 
         // 如果存在修改的文件，则只处理修改的文件
@@ -66,12 +66,12 @@ export class TranslatePlugin implements IMiddleware {
      * @param { ContextResource } context    上下文对象 
      * @param { FileResource }    source     源文件
      * @param { FileResource }    target     目标文件
-     * @param { IExtension[] }    extensions 扩展列表
+     * @param { TwmExtension[] }    extensions 扩展列表
      */
     async _translateFile (
         context: ContextResource,
         translateFileMap: Map<FileResource, FileResource>,
-        extensions: IExtension
+        extensions: TwmExtension
     ) {
         const length = extensions.translate.length;
 

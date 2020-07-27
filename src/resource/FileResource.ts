@@ -1,12 +1,12 @@
 import { extname, basename, isStaticAsset } from '../utils/PathUtils';
 import { readFileSync, accessSync } from '../utils/FsUtils';
-import { IExtension } from '../translate';
+import { TwmExtension } from '../translate';
 import { error } from '../utils';
 
 export interface IFileResource {
     sourceAbsolutePath: string;
     distAbsolutePath: string;
-    extension: IExtension;
+    extension: TwmExtension;
 }
 
 export class FileResource {

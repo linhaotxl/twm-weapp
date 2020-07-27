@@ -3,9 +3,9 @@ import Twm from '../TwmWatcher';
 import { joinPath, dirname } from '../utils';
 import { ContextResource } from '../resource';
 import { processAddFile, processAddDir } from '../helper';
-import { IMiddleware } from '.';
+import { TwmMiddleware } from '.';
  
-export class GlobbyPathPlugin implements IMiddleware {
+export class GlobbyPathPlugin implements TwmMiddleware {
     apply ( twm: Twm ) {
         twm.hooks.initialHooks.tapPromise( 'GlobbyPath', ( context: ContextResource ) => new Promise( async resolve => {
             const { root } = context;

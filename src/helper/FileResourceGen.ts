@@ -1,4 +1,4 @@
-import { IExtension } from '../translate';
+import { TwmExtension } from '../translate';
 import { extname, joinPath, relativePath, dirname, replaceExtname, accessSync } from '../utils';
 import { FileResource, FileContext, ContextResource, DirectorResource, EDirectorState } from '../resource';
 
@@ -71,7 +71,7 @@ export const processAddFile = (
 const getExtension = (
     fileExtName: string,
     extensionNames: string[],
-    extensions: IExtension[]
+    extensions: TwmExtension[]
 ) => {
     const eIndex = extensionNames.indexOf( fileExtName );
     const ext = extensions[ eIndex ];
@@ -85,7 +85,7 @@ const processAddSourceFile = (
     sourceFile: FileResource,
     sourceAbsolutePath: string,
     distAbsolutePath: string,
-    extension: IExtension,
+    extension: TwmExtension,
     fileContext: FileContext
 ) => {
     // 直接生成 Target File，并设置
@@ -99,7 +99,7 @@ const processAddSourceFile = (
 const processAddTargetFile = (
     sourceFile: FileResource,
     translateFilePathA: string,
-    extensions: IExtension[],
+    extensions: TwmExtension[],
     repaceNames: string[],
     fileContext: FileContext,
 ) => {

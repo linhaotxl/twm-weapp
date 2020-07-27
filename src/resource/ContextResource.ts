@@ -1,4 +1,4 @@
-import { IExtension } from '../translate';
+import { TwmExtension } from '../translate';
 import { FileContext } from './';
 
 export class ContextResource {
@@ -6,7 +6,7 @@ export class ContextResource {
     output: string = '';
     miniprogram: string = '';
 
-    extensions: IExtension[] = [];
+    extensions: TwmExtension[] = [];
     extensionNames: string[] = [];
     replaceNames: string[] = [];
     extensionMap: Record<string, string> = {};

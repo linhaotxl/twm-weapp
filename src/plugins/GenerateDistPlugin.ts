@@ -1,9 +1,9 @@
 import Twm from '../TwmWatcher';
 import { unlink, writeFile, error, copyFile, rmdir, mkdir, warn } from '../utils';
 import { FileResource, ContextResource, DirectorResource } from '../resource';
-import { IMiddleware } from '.';
+import { TwmMiddleware } from '.';
 
-export class GenerateDistPlugin implements IMiddleware {
+export class GenerateDistPlugin implements TwmMiddleware {
     apply ( twm: Twm ) {
         twm.hooks.distGenHooks.tapPromise( 'CopyFile', (
             context: ContextResource,
