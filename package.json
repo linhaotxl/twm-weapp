@@ -33,12 +33,10 @@
     "@types/chalk": "^2.2.0",
     "@types/clear": "^0.1.0",
     "@types/fs-extra": "^9.0.1",
-    "@types/less": "^3.0.1",
     "@types/node": "^14.0.4",
     "@types/tapable": "^1.0.5",
     "@types/yargs": "^15.0.5",
     "core-js": "^3.6.5",
-    "less": "^3.12.2",
     "typescript": "^3.9.2"
   },
   "dependencies": {
