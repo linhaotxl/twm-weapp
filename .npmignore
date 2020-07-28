@@ -1,3 +1,7 @@
 /src  
 
 /.vscode
+
+.babelrc
+
+tsconfig.json
