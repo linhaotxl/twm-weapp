@@ -1,7 +1,10 @@
 import { ContextResource, FileResource } from '../resource';
 import { TranslateTsToJs } from './TranslateTsToJs';
 
-export type TranslateFn = ( context: ContextResource, source: FileResource, target: FileResource ) => void;
+export interface TranslateFn {
+    ( context: ContextResource, source: FileResource, target: FileResource ): void;
+    index?: number;
+}
 
 export interface TwmExtension {
     test?: RegExp;

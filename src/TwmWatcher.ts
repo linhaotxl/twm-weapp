@@ -71,7 +71,11 @@ export default class Twm {
             if ( index === -1 ) {
                 extensions.push( t );
             } else {
-                extensions[index].translate.push( ...t.translate );
+                for ( const _t of t.translate ) {
+                    typeof _t.index === 'number'
+                        ? extensions[index].translate.splice( _t.index, 0, _t )
+                        : extensions[index].translate.push( _t );
+                }
             }
         }
         options.set( 'extensions', extensions );
