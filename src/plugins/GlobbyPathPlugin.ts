@@ -38,7 +38,7 @@ export class GlobbyPathPlugin implements TwmMiddleware {
      * 获取扫描目录集合
      */
     async getGlobbyPaths ( globbyPath: string | string[], context: ContextResource ) {
-        const { output, miniprogram, root } = context;
+        const { output, miniprogram, root, ignores } = context;
         const path = typeof globbyPath === 'string' ? [ globbyPath ] : globbyPath;
         const gPathSet = new Set([
             `!${ joinPath( root, 'node_modules' ) }`,
@@ -49,12 +49,9 @@ export class GlobbyPathPlugin implements TwmMiddleware {
         const gPath: string[] = [
             ...path,
             ...gPathSet,
-            // `!${ output }`,
+            ...ignores.map( i => `!${ i }` ),
+            `!${ output }`,
         ];
-
-        if ( output !== root ) {
-            gPath.push( `!${ output }` );
-        }
 
         return await globby( gPath );
     }

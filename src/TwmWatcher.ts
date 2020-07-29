@@ -6,7 +6,7 @@ import { DefaultPlugins } from './plugins';
 import { ContextResource, FileResource, DirectorResource } from './resource';
 import { FileWatcher } from './helper';
 import { JS, TS, JSON, WXSS, WXML, DTS, TwmExtension } from './translate';
-import { absolutePath, info, joinPath, accessSync, error, readJSONSync } from './utils';
+import { absolutePath, info, joinPath, accessSync, error, readJSONSync, isAbsolute, dirname } from './utils';
 
 export type TwmOptions = {
     root: string;
@@ -15,6 +15,7 @@ export type TwmOptions = {
     config: string;
     plugins?: Function[];
     translates?: TwmExtension[];
+    ignore?: string | string[];
 };
 
 export default class Twm {
@@ -36,13 +37,15 @@ export default class Twm {
     }
 
     async init () {
-        const { root, output, watched, config } = this.options;
+        const { root, output, watched, config, ignore: ignoreInCommand } = this.options;
         const options = new ContextResource();
         let configObject: Partial<TwmOptions> = {};
+        let configDir = root;
 
         try {
             const configPath = !!config ? absolutePath( config ) : joinPath( options.root, 'twm.config.js' );
             accessSync( configPath );
+            configDir = dirname( configPath );
             const [ err, { default: innerConfigObject } ] = await to( import( configPath ) );
             if ( err ) {
                 error( err );
@@ -52,7 +55,7 @@ export default class Twm {
         } catch ( e ) {
             console.log(e)
         }
-        const { translates = [], plugins = [] } = configObject;
+        const { translates = [], plugins = [], ignore: ignoreInConfig = [] } = configObject;
 
         options.set( 'root', absolutePath( root ) );
 
@@ -92,6 +95,33 @@ export default class Twm {
         options.set( 'extensionNames', extensionNames );
         options.set( 'extensionMap', extensionMap );
         options.set( 'replaceNames', replaceNames );
+
+        let ignores: string[] = [];
+        // 优先解析命令行中的参数，不存在再解析配置文件中的参数
+        if ( typeof ignoreInCommand === 'string' ) {
+            ignores = ignoreInCommand.split( ',' );
+        } else {
+            if ( Array.isArray( ignoreInConfig ) && ignoreInConfig.length ) {
+                ignores = ignoreInConfig;
+            }
+            if ( typeof ignoreInConfig === 'string' ) {
+                ignores = ignoreInConfig.split( ',' );
+            }
+        }
+
+        const ignoresLength = ignores.length;
+        for ( let i = 0; i < ignoresLength; ++i ) {
+            if ( !isAbsolute( ignores[i] ) ) {
+                ignores[i] = absolutePath(
+                    typeof ignoreInCommand === 'string'
+                        ? dirname( options.root )
+                        : configDir,
+                    ignores[i]
+                );
+            }
+        }
+
+        options.set( 'ignores', ignores );
 
         this.context = options;
 

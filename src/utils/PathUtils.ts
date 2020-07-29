@@ -4,7 +4,7 @@ export const basename = ( p: string, e?: string ) => path.basename( p, e );
 
 export const relativePath = ( from: string, to: string ) => path.relative( from, to ); 
 
-export const absolutePath = ( relativePath: string ) => path.resolve( relativePath );
+export const absolutePath = ( ...p: string[] ) => path.resolve( ...p );
 
 export const joinPath = ( ...paths: string[] ) => path.join( ...paths );
 
@@ -13,6 +13,8 @@ export const dirname = ( p: string ) => path.dirname( p );
 export const extname = ( p: string ) => path.extname( p );
 
 export const resolve = ( ...p: string[] ) => path.resolve( ...p );
+
+export const isAbsolute = ( p: string ) => path.isAbsolute( p );
 
 export const imageRE = /\.(png|jpe?g|gif|svg|ico|webp)(\?.*)?$/;
 export const mediaRE = /\.(mp4|webm|ogg|mp3|wav|flac|aac)(\?.*)?$/;

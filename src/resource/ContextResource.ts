@@ -10,6 +10,7 @@ export class ContextResource {
     extensionNames: string[] = [];
     replaceNames: string[] = [];
     extensionMap: Record<string, string> = {};
+    ignores: string[] = [];
 
     watched: boolean = false;
 
